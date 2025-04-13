@@ -1,0 +1,45 @@
+services:
+  sqlserver:
+    build:
+      context: ./ProductDB  # This is correct
+      dockerfile: Dockerfile
+    container_name: product-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Password1!"
+      MSSQL_PID: "Express"
+    ports:
+      - "14333:1433"
+    volumes:
+      - db_data:/var/opt/mssql
+      - ./ProductDB/init-database.sql:/docker-entrypoint-initdb.d/init.sql  # Runs on first startup 
+    networks:
+      - product-network
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'sqlservr'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      
+  webapp:
+    build:
+      context: ./prjIceTask4  # Changed to point to the project folder
+      dockerfile: Dockerfile   # The Dockerfile is inside this folder
+    container_name: product-webapp
+    ports:
+      - "5000:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ProductDB;User Id=sa;Password=Password1!;TrustServerCertificate=True;
+    networks:
+      - product-network
+
+networks:
+  product-network:
+    driver: bridge
+
+volumes:
+  db_data:

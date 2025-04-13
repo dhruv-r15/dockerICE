@@ -1,0 +1,17 @@
+﻿@model prjIceTask4.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2 class="mt-4">Product Details</h2>
+
+<div class="car mt-3">
+    <div class="card-body">
+        <h4 class="card-title">@Model.Name</h4>
+        <p class="card-text">
+            <strong>Price:</strong> @Model.Price.ToString("C")
+        </p>
+</div>
+</div>
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
